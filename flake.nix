@@ -29,6 +29,20 @@
               dir = d.outPath;
             }) deps;
           });
+          # Lake has no env var for package overrides, only `--packages=<json>`,
+          # so shadow `lake` in the dev shell with one that always passes the
+          # store paths. Keeps `lake build` / `lake serve` (the LSP) flag-free.
+          lake = pkgs.writeShellScriptBin "lake" ''
+            real="${lp.lean4}/bin/lake"
+            case "''${1-}" in
+              build | query | serve | lean | env | exe | check-build)
+                if [[ -n "''${LAKE_OVERRIDES-}" && " $* " != *--packages* ]]; then
+                  exec "$real" "$1" --packages="$LAKE_OVERRIDES" "''${@:2}"
+                fi
+                ;;
+            esac
+            exec "$real" "$@"
+          '';
         in
         {
           packages.default = lp.buildLakePackage {
@@ -39,11 +53,15 @@
           };
 
           devShells.default = pkgs.mkShell {
-            packages = [ lp.lean4 ];
+            packages = [ lake lp.lean4 ];
             # The LSP / plain `lean` resolve Mathlib straight from the store.
             LEAN_PATH = pkgs.lib.concatStringsSep ":"
               (map (d: "${d}/.lake/build/lib/lean") deps);
             LAKE_OVERRIDES = "${lakeOverrides}";
+            # Mathlib's post-update hook would run `lake exe cache get`; its
+            # .ltar files fail to unpack with nixpkgs' leantar, and the oleans
+            # come from the store anyway.
+            MATHLIB_NO_CACHE_ON_UPDATE = "1";
           };
         };
     };
