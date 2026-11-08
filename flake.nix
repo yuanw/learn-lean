@@ -65,4 +65,13 @@
           };
         };
     };
+
+  # --- Flake Local Nix Configuration -------------------------------
+  # Substitute the Mathlib closure from our own cache instead of rebuilding it
+  # (push with `just push`). Nix asks once before trusting a new substituter;
+  # `accept-flake-config = true` in nix.conf skips the prompt.
+  nixConfig = {
+    extra-substituters = [ "https://lean4math.cachix.org" ];
+    extra-trusted-public-keys = [ "lean4math.cachix.org-1:lo4ur+c1M7f5i9VqM0YzEdZ1KpzXdlVqmFfrqfxmY5g=" ];
+  };
 }
