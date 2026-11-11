@@ -18,10 +18,25 @@ output, design discussions, and challenges, that happens to contain a working ch
 | Surface syntax | sprite's `.re` files, annotations in `/*@ ... */` comments (keeps the reference corpus usable verbatim) |
 | CLI | `lake exe sprite <level> <file>` mirroring `stack exec -- sprite 8 test/L8/pos/listSet.re` |
 | Solver | **z3 5.3.2** from nixpkgs, `pkgs.z3` in `devShells.default.packages`; subprocess + SMT-LIB text we emit ourselves |
-| Reference impl | `/tmp/sprite` (clone of `ranjitjhala/sprite-lang`) — read-only oracle, and the source of the 113-file test corpus |
+| Reference impl | `vendor/sprite-lang` (clone of `ranjitjhala/sprite-lang`; move it out of `/tmp` in Ch 1 and add to `.gitignore`) — read-only oracle, and the source of the 113-file test corpus |
 | Not used in proofs | `Blaster`'s `blaster` tactic (it closes goals with `axiom blasterProven`, i.e. an admit). Allowed as a *counterexample oracle* only. See the audit rule below. |
 
-Rename freely. Everything below survives a rename of `sprite` except the test-corpus paths.
+### Naming
+
+The language is **sprite**, lowercase, one word, no article. It is used consistently:
+
+| Thing | Name |
+|---|---|
+| The language | sprite ("a sprite program", "sprite's λδ level") |
+| Source files | `.re`, e.g. `test/L5/pos/isort00.re` |
+| Executable | `sprite` — `lake exe sprite <level> <file>` |
+| Lean library | `Sprite`, sources in `Sprite/`, root module `Sprite.lean` |
+| Specification twin | `Spec`, sources in `Spec/` |
+| The checker as a concept | "the sprite checker"; never "Sprite the language" when you mean the tool |
+
+The paper's own names for the eight levels (λ, λβ, λκ, …) stay in the prose as the formal
+labels, with the level number always nearby: "λρ (Ch 18)". The reference implementation is
+also called sprite, so when you mean the Haskell one, say "the reference".
 
 ---
 
@@ -197,9 +212,11 @@ packages = [ lake lp.lean4 pkgs.z3 ];
 
 # 2. corpus, verbatim from the reference clone
 mkdir -p test && cp -r /tmp/sprite/test/L{1..8} test/
+mkdir -p vendor && mv /tmp/sprite vendor/sprite-lang && echo vendor/ >> .gitignore   # /tmp is not durable
 
 # 3. the exe target, and a stub CLI that parses its two args and exits
-#    lakefile.lean:  executable sprite where root := `Sprite.Main
+#    lakefile.lean:  lean_lib Sprite where globs := #[.andSubmodules `Sprite]
+#                    executable sprite where root := `Sprite.Main
 
 lake build && lake exe sprite 1 test/L1/pos/inc00.re   # Ch 1's goal: prints, then fails honestly
 
@@ -207,4 +224,12 @@ git commit -am "ch-01: z3 in the shell, corpus in, CLI stub" && git tag ch-01-or
 ```
 
 Then write `book/01-what-a-refinement-checker-owes-you.md` in the same commit. The prose is
-part of the deliverable, not a later chore — you'll never write it later.
+part of the deliverable, not a later chore; you'll never write it later.
+
+**One package wart to settle in Ch 1.** `lakefile.lean` currently declares `package Example`
+with `lean_lib Example`, and `Example.lean` / `Example/NNG.lean` are your Number Game
+scratch. A second `lean_lib Sprite` in the same package builds fine, so nothing forces the
+issue — but `package Example` holding a tutorial about sprite reads wrong. Renaming touches
+exactly three places: `package`/`lean_lib` in [lakefile.lean](lakefile.lean), `pname` in
+[flake.nix](flake.nix), and the two scratch files' module paths. Either rename in the Ch 1
+commit or leave it and stop noticing.
