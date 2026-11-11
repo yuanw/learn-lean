@@ -164,6 +164,18 @@ When a linter is simply wrong, silence it *locally* — `set_option linter.unuse
 around that one declaration, with a comment saying why. A bare suppression committed without a
 reason is how a style gate turns into wallpaper.
 
+One consequence worth knowing before it surprises you: `warningAsError` promotes Lean's own
+warnings as well as linter messages, so `sorry` is a build failure in `Sprite/`, not a warning.
+
+```
+error: declaration uses `sorry`
+```
+
+That enforces standing rule 5 (no silent `sorry`) with the compiler instead of a `grep`, but it
+does collide with the book's allowance for a *deliberate*, documented `sorry` in a stretch item.
+When you want one, that is the moment to reach for the escape hatch —
+`set_option warningAsError false` on the declaration, plus the reason.
+
 ## The corpus, before the checker
 
 ```sh

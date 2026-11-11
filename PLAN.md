@@ -187,7 +187,9 @@ which gets you a working λκ checker and one real soundness theorem. Cut Ch 14�
 4. **Tests are golden files, not `#guard`.** Checker runs fork z3; that belongs in
    `lake exe`, compared against `test/golden/`, exit code 0/1.
 5. **Before every tag:** `grep -rn "sorry\|admit\|blasterProven" Sprite/ Spec/` must be empty
-   except lines marked `-- shortcut: <limit>, <when to upgrade>`.
+   except lines marked `-- shortcut: <limit>, <when to upgrade>`. In `Sprite/` the build already
+   refuses `sorry` (`warningAsError`), so the grep is really there for `Spec/` and for the
+   escape hatches.
 6. **`PROOFS.md` entries carry their axioms.** `#print axioms thm` output pasted under each.
    Allowed set: `propext`, `Classical.choice`, `Quot.sound`. Anything else is a red flag.
 7. **Log the wall-time** in `NOTES.md`: what you tried, what Lean said, what unblocked it.
