@@ -204,7 +204,7 @@ which gets you a working λκ checker and one real soundness theorem. Cut Ch 14�
 - An epigraph per chapter. Yes, really; it forces you to say what the chapter is about.
 - Numbers over adjectives: "113 files, 4 of them negative", not "a good test suite".
 
-## First session (Ch 1, ~2 h)
+## First session (Ch 1) — done, kept as the recipe for later chapters
 
 ```sh
 # 1. z3 into the dev shell — one line in flake.nix, devShells.default.packages
@@ -216,20 +216,23 @@ mkdir -p vendor && mv /tmp/sprite vendor/sprite-lang && echo vendor/ >> .gitigno
 
 # 3. the exe target, and a stub CLI that parses its two args and exits
 #    lakefile.lean:  lean_lib Sprite where globs := #[.andSubmodules `Sprite]
-#                    executable sprite where root := `Sprite.Main
+#                    lean_exe sprite where root := `Sprite.Main
 
 lake build && lake exe sprite 1 test/L1/pos/inc00.re   # Ch 1's goal: prints, then fails honestly
 
-git commit -am "ch-01: z3 in the shell, corpus in, CLI stub" && git tag ch-01-oracle
+git commit -am "ch-01: z3 in the shell, corpus in, CLI stub" && git tag ch-01
 ```
+
+`nix build` sees only the committed tree, so commit before you reach for it; `lake build` sees
+the working directory. Everything in this block is done in Ch 1 — see
+[book/01-what-a-refinement-checker-owes-you.md](book/01-what-a-refinement-checker-owes-you.md).
 
 Then write `book/01-what-a-refinement-checker-owes-you.md` in the same commit. The prose is
 part of the deliverable, not a later chore; you'll never write it later.
 
-**One package wart to settle in Ch 1.** `lakefile.lean` currently declares `package Example`
-with `lean_lib Example`, and `Example.lean` / `Example/NNG.lean` are your Number Game
-scratch. A second `lean_lib Sprite` in the same package builds fine, so nothing forces the
-issue — but `package Example` holding a tutorial about sprite reads wrong. Renaming touches
-exactly three places: `package`/`lean_lib` in [lakefile.lean](lakefile.lean), `pname` in
-[flake.nix](flake.nix), and the two scratch files' module paths. Either rename in the Ch 1
-commit or leave it and stop noticing.
+**The package wart, left alone deliberately.** `lakefile.lean` still declares `package Example`
+with a `lean_lib Example` holding [Example/NNG.lean](Example/NNG.lean), your Number Game proofs.
+A second `lean_lib Sprite` in the same package builds fine, so nothing forces the issue. If it
+bothers you, renaming touches three places: `package`/`lean_lib` in
+[lakefile.lean](lakefile.lean), `pname` in [flake.nix](flake.nix), and that one file's module
+path.
