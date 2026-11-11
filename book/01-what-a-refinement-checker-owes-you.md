@@ -245,6 +245,12 @@ def parseArgs : List String → Cmd
 #guard parseArgs ["9", "x.re"] == .usage "level must be 1..8, got 9"
 ```
 
+https://lean-lang.org/doc/reference/latest/Basic-Types/Strings/#String___intercalate
+
+explain	BEq
+
+https://lean-lang.org/doc/reference/latest/Terms/Pattern-Matching/
+
 Nine `#guard`s, all checked by the kernel every time you build, all in the same file as the code.
 Note `==` rather than `=`: we would rather write `example : parseArgs … = … := by decide`, but
 `deriving DecidableEq` is implemented in the `Lean` library, and importing `Lean` here is exactly
@@ -272,6 +278,36 @@ Exit codes follow [sysexits(3)](https://www.freebsd.org/cgi/man.cgi?query=sysexi
 bad command line, 66 for an unreadable file. Code 2 is ours and means *"your command line was
 fine; my checker does not exist yet"*. Distinguishing "you were wrong" from "I am not finished"
 is what lets a test harness treat them differently in Chapter 10.
+
+https://lean-lang.org/doc/reference/latest/Basic-Types/Integers/#Int
+On UInt32
+
+ Not a style choice — Lean's entry point accepts exactly (List String →)? IO (UInt32 | Unit | PUnit). IO Int is a type error; I hit that message before switching (UInt8, the type you'd guess since codes are
+ one byte, is rejected too).
+
+ Given that, UInt32 is the right shape for three reasons:
+
+ 1. It round-trips with child processes. IO.Process.Output.exitCode : UInt32 in core — so when the checker starts shelling out to z3, return r.exitCode just works. A Int-typed main would force a cast at
+    exactly the place where you want to propagate a subprocess's code.
+ 2. It deletes a class of bug. exit -1 and exit 255 are the same observable event:
+    ```
+      bash -c 'exit -1'  → $? = 255
+    ```
+    Unsigned makes the negative half unrepresentable.
+ 3. It's neither a machine word nor oversized. USize would make your exit code's type platform-dependent; UInt64 would be a lie the C ABI (exit(int)) has to truncate anyway.
+
+ Contrast Haskell, where System.Exit gives you ExitFailure Int and the docs tell you to stay in 1..255 — same semantics, Lean just removed the half that can't be observed.
+
+ But UInt32 still doesn't encode the real constraint. POSIX keeps only the low 8 bits:
+
+ ```
+   bash -c 'exit 300'  → $? = 44
+ ```
+
+ so returning 300 collides silently with returning 44, and nothing in the type stops you. That's why our exit codes are named (exitUsage : UInt32 := 64, exitNoInput := 66, exitTodo := 2) instead of literals
+ at call sites, and why the Chapter 10 harness compares exact codes rather than "nonzero". If the codebase ever wants the type to carry the constraint, the honest type is Fin 256, not UInt32 — but main won't
+ accept it, so you'd be proving h : n < 256 at the boundary to hand Lean a UInt32 anyway. Not worth it for three constants.
+
 
 ## What the machine said
 
