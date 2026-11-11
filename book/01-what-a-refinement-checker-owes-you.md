@@ -1,5 +1,7 @@
 # 1. What a refinement checker owes you
 
+*[impl] — 2 h — gate: `lake build` green, `lake exe sprite --help` prints*
+
 > The type systems of modern languages … are the most widely used method for establishing
 > guarantees about the correct behavior of software. In essence, types allow the programmer to
 > describe legal sets of values for various operations … Unfortunately, well-typed programs do
