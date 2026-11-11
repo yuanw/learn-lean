@@ -1,8 +1,8 @@
-# Crafting Refinements
+# Refine Your Craft with Lean
 
 A self-paced tutorial in the style of *Crafting Interpreters*: we build a refinement type
 checker for the language of Jhala & Vazou's *Refinement Types* (arXiv:2010.07763) in Lean 4,
-one chapter at a time, and then — Part II — we prove things about what we built.
+one chapter at a time, and then — Part III — we prove things about what we built.
 
 The artifact is not just a program. It is `book/`, a written tutorial with real console
 output, design discussions, and challenges, that happens to contain a working checker.

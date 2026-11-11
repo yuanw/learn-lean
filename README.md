@@ -1,7 +1,8 @@
 # learn-lean
 
-Tutorial in progress: a refinement type checker for sprite, written chapter by chapter in
-[book/](book) — plan in [PLAN.md](PLAN.md).
+*Refine Your Craft with Lean* — a tutorial in progress: a refinement type checker for sprite,
+written chapter by chapter in [book/](book). Plan, chapter outline, and standing rules in
+[PLAN.md](PLAN.md).
 
 Lean 4 + Mathlib, all from nixpkgs `leanPackages`. Mathlib is a prebuilt
 download (no compile), and Lake never needs the network: the dev shell wraps
