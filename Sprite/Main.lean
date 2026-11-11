@@ -14,10 +14,14 @@ will happily build an executable that runs someone else's `main` when you get th
 
 open Sprite
 
+/-- Bumped by hand; `sprite --version` prints it. -/
 def version : String := "0.1.0"
 
+/-- sysexits(3) `EX_USAGE`: the command line itself was wrong. -/
 def exitUsage : UInt32 := 64
+/-- sysexits(3) `EX_NOINPUT`: the command line was fine, the file is not there. -/
 def exitNoInput : UInt32 := 66
+/-- Ours: command line fine, file readable, checker not written yet. -/
 def exitTodo : UInt32 := 2
 
 /-- A missing or unreadable file becomes `none` instead of escaping as an exception, so the

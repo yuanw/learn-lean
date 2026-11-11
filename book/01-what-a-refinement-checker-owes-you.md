@@ -113,6 +113,57 @@ One flake quirk to know now: `nix build` builds the *committed* tree, so a brand
 invisible to git is invisible to the flake. `lake build` sees the working directory. If
 `nix build` says `file: …/source/Sprite` does not exist, commit.
 
+## The linter is part of the prose
+
+Every program in this book is printed, so every program in this book has to read well. That is
+enforced by the compiler rather than by intent — `lakefile.lean` gives the `Sprite` targets two
+options:
+
+```lean
+def lintArgs : Array String := #["-Dlinter.all=true", "-DwarningAsError=true"]
+
+@[default_target]
+lean_lib Sprite where
+  globs := #[.andSubmodules `Sprite]
+  moreLeanArgs := lintArgs
+```
+
+and they reappear on the command line of every file it builds:
+
+```
+… lean -Dlinter.all=true -DwarningAsError=true Sprite/Cli.lean -o …
+```
+
+`linter.all` switches on every linter registered in the compiler; `warningAsError` promotes what
+they say to a build failure. The first run over the code above produced seven errors, all of one
+kind:
+
+```
+error: Sprite/Cli.lean:15:10: missing doc string for public inductive Cmd
+error: Sprite/Cli.lean:28:4: missing doc string for public def parseArgs
+```
+
+That is the cheapest linter there is to satisfy and the one that matters most here: the docstring
+for `parseArgs` is the sentence you would have written in the chapter anyway, and now it lives
+next to the code that has to keep matching it. Unused bindings fail too, which is the linter
+that earns its keep once the ASTs get big:
+
+```
+error: Variable name `unused` is not explicitly referenced.
+  Hint: … prefix the name with `_` to silence this warning
+```
+
+Nothing external was installed. Lean's linter framework ships in the compiler, and those two
+options are the whole configuration — a standalone lint tool would add a dependency and a second
+config file to say what these two flags already say. Mathlib's linters (`#lint`,
+`#field_linter`, the style family) are genuinely useful, but they require `import Mathlib`, which
+is exactly what this library refuses; they arrive with `Spec/` in Part III, where that import is
+already paid for.
+
+When a linter is simply wrong, silence it *locally* — `set_option linter.unusedVariables false`
+around that one declaration, with a comment saying why. A bare suppression committed without a
+reason is how a style gate turns into wallpaper.
+
 ## The corpus, before the checker
 
 ```sh

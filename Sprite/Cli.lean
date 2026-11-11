@@ -12,19 +12,27 @@ namespace Sprite
     built in Ch 3+3n of `book/`. -/
 def maxLevel : Nat := 8
 
+/-- What the command line said, already interpreted. `usage` carries the message to print on
+    stderr; the exit code is decided by `main`, not here. -/
 inductive Cmd where
-  | version
+  /-- `sprite --version` -/  | version
+  /-- `sprite --help` or `sprite -h` or, helpfully, bare `sprite`. -/
   | help
+  /-- `sprite <level> <file>` with `1 ≤ level ≤ 8`. -/
   | check (level : Nat) (file : String)
+  /-- Something we could not make sense of; the argument is what to tell the user. -/
   | usage (msg : String)
   deriving BEq
 
+/-- The text printed by `--help`, and by any `usage` case. -/
 def usageMessage : String :=
   String.intercalate "\n"
     [ "usage: sprite <level> <file>"
     , "       sprite --version | --help"
     , "  <level> picks the language: 1 λ, 2 λβ, 3 λκ, 4 λα, 5 λδ, 6 λρ, 7 λτ, 8 λπ" ]
 
+/-- Interpret command line arguments. Total: everything bad produces a `usage` case rather
+    than an error, so `main` always has something to print. -/
 def parseArgs : List String → Cmd
   | []                    => .usage usageMessage
   | ["--version"]         => .version

@@ -194,6 +194,13 @@ which gets you a working λκ checker and one real soundness theorem. Cut Ch 14�
    Ch 24's failure notes become the chapter's prose.
 8. **Read the paper's § first, the reference `.hs` last** — except Ch 13, 15, 18, where the
    reference *is* the specification.
+9. **The build lints, so the prose has no excuses.** `Sprite/` compiles with
+   `-Dlinter.all=true -DwarningAsError=true` (set in [lakefile.lean](lakefile.lean)): every
+   public declaration needs a docstring, no unused bindings, no deprecated syntax — as errors,
+   not suggestions. Silencing a linter needs a `-- why:` comment giving the reason; a bare
+   `set_option linter.x false` in a committed file is a review comment waiting to happen.
+   Mathlib's own linters (`#lint`, `#field_linter`, the style family) arrive with `Spec/`, which
+   is allowed to import Mathlib; `Sprite/` is not.
 
 ## Style notes (so it reads like CI and not like docs)
 
