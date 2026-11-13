@@ -53,7 +53,8 @@
           };
 
           devShells.default = pkgs.mkShell {
-            packages = [ lake lp.lean4 ];
+            # z3 is the oracle the checker talks to over SMT-LIB text (book/ Ch 3).
+            packages = [ lake lp.lean4 pkgs.z3 ];
             # The LSP / plain `lean` resolve Mathlib straight from the store.
             LEAN_PATH = pkgs.lib.concatStringsSep ":"
               (map (d: "${d}/.lake/build/lib/lean") deps);

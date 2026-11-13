@@ -1,5 +1,9 @@
 # learn-lean
 
+*Refine Your Craft with Lean* — a tutorial in progress: a refinement type checker for sprite,
+written chapter by chapter in [book/](book). Plan, chapter outline, and standing rules in
+[PLAN.md](PLAN.md).
+
 Lean 4 + Mathlib, all from nixpkgs `leanPackages`. Mathlib is a prebuilt
 download (no compile), and Lake never needs the network: the dev shell wraps
 `lake` so every build gets `--packages=$LAKE_OVERRIDES`, which points the deps
@@ -8,7 +12,7 @@ at the store.
 ```sh
 direnv allow
 lake build                              # incremental build
-lean Example.lean                       # check one file (this is what the LSP does)
+lean Sprite/Cli.lean                    # check one file (this is what the LSP does)
 nix build                               # reproducible build of the package
 ```
 
